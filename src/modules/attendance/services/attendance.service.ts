@@ -5,19 +5,21 @@ import {
   AttendanceStatus,
   AttendanceFiltersState,
   AttendanceHistoryFiltersState,
-} from '../types';
+} from "../types";
 import {
   initialDailyAttendance,
   initialAttendanceHistory,
   initialEarlyWarnings,
-} from '../mock-data';
+} from "../mocks/attendance.mock";
 
 let memoryDaily = [...initialDailyAttendance];
 let memoryHistory = [...initialAttendanceHistory];
 let memoryWarnings = [...initialEarlyWarnings];
 
 export const attendanceService = {
-  async getDailyAttendance(filters?: Partial<AttendanceFiltersState>): Promise<DailyAttendanceItem[]> {
+  async getDailyAttendance(
+    filters?: Partial<AttendanceFiltersState>,
+  ): Promise<DailyAttendanceItem[]> {
     return new Promise((resolve) => {
       setTimeout(() => resolve([...memoryDaily]), 150);
     });
@@ -26,10 +28,12 @@ export const attendanceService = {
   async updateDailyStatus(
     studentId: string,
     status: AttendanceStatus,
-    note?: string
+    note?: string,
   ): Promise<DailyAttendanceItem | null> {
     return new Promise((resolve) => {
-      const idx = memoryDaily.findIndex((i) => i.id === studentId || i.studentCode === studentId);
+      const idx = memoryDaily.findIndex(
+        (i) => i.id === studentId || i.studentCode === studentId,
+      );
       if (idx !== -1) {
         memoryDaily[idx] = {
           ...memoryDaily[idx],
@@ -47,7 +51,7 @@ export const attendanceService = {
     return new Promise((resolve) => {
       memoryDaily = memoryDaily.map((item) => ({
         ...item,
-        status: 'present',
+        status: "present",
       }));
       resolve([...memoryDaily]);
     });
@@ -60,7 +64,7 @@ export const attendanceService = {
   },
 
   async getAttendanceHistory(
-    filters?: Partial<AttendanceHistoryFiltersState>
+    filters?: Partial<AttendanceHistoryFiltersState>,
   ): Promise<AttendanceHistoryItem[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -72,7 +76,7 @@ export const attendanceService = {
             (h) =>
               h.fullName.toLowerCase().includes(q) ||
               h.studentCode.toLowerCase().includes(q) ||
-              h.teacherName.toLowerCase().includes(q)
+              h.teacherName.toLowerCase().includes(q),
           );
         }
 
@@ -80,7 +84,7 @@ export const attendanceService = {
           result = result.filter((h) => h.className === filters.className);
         }
 
-        if (filters?.status && filters.status !== 'all') {
+        if (filters?.status && filters.status !== "all") {
           result = result.filter((h) => h.status === filters.status);
         }
 

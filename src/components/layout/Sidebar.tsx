@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
-import { usePathname, Link } from '@/src/lib/router';
-import { useAuth } from '@/src/lib/auth/AuthContext';
-import { cn } from '@/src/lib/utils';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   GraduationCap,

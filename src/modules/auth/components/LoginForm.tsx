@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
-import { useAuth, UserRole } from '@/src/lib/auth/AuthContext';
-import { useRouter } from '@/src/lib/router';
-import { defaultAccounts } from '../mock-data';
+import { useAuth, UserRole } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
+import { defaultAccounts } from '../mocks/auth.mock';
 import {
   Shield,
   GraduationCap,

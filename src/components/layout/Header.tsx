@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth, UserRole } from '@/src/lib/auth/AuthContext';
-import { useRouter } from '@/src/lib/router';
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';import { useAuth, UserRole } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Bell,

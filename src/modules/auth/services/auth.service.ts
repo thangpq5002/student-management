@@ -1,5 +1,5 @@
-import { LoginCredentials, AuthSession } from '../types';
-import { defaultAccounts } from '../mock-data';
+import { LoginCredentials, AuthSession } from "../types";
+import { defaultAccounts } from "../mocks/auth.mock";
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthSession> {

@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Subject, SubjectFiltersState, SubjectFormData } from '../types';
-import { subjectService } from '../services/subject.service';
+import { useState, useEffect, useCallback } from "react";
+import { Subject, SubjectFiltersState, SubjectFormData } from "../types";
+import { subjectService } from "../services/subject.service";
 
 export const useSubjects = (initialFilters?: Partial<SubjectFiltersState>) => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<SubjectFiltersState>({
-    search: initialFilters?.search || '',
-    department: initialFilters?.department || '',
-    evaluationType: initialFilters?.evaluationType || '',
-    gradeLevel: initialFilters?.gradeLevel || '',
+    search: initialFilters?.search || "",
+    department: initialFilters?.department || "",
+    evaluationType: initialFilters?.evaluationType || "",
+    gradeLevel: initialFilters?.gradeLevel || "",
   });
 
   const fetchSubjects = useCallback(async () => {
@@ -20,7 +20,7 @@ export const useSubjects = (initialFilters?: Partial<SubjectFiltersState>) => {
       const data = await subjectService.getSubjects(filters);
       setSubjects(data);
     } catch {
-      setError('Không thể tải danh sách môn học.');
+      setError("Không thể tải danh sách môn học.");
     } finally {
       setIsLoading(false);
     }
@@ -36,10 +36,10 @@ export const useSubjects = (initialFilters?: Partial<SubjectFiltersState>) => {
 
   const resetFilters = () => {
     setFilters({
-      search: '',
-      department: '',
-      evaluationType: '',
-      gradeLevel: '',
+      search: "",
+      department: "",
+      evaluationType: "",
+      gradeLevel: "",
     });
   };
 
@@ -47,6 +47,12 @@ export const useSubjects = (initialFilters?: Partial<SubjectFiltersState>) => {
     const created = await subjectService.createSubject(data);
     await fetchSubjects();
     return created;
+  };
+
+  const updateSubject = async (id: string, data: SubjectFormData) => {
+    const updated = await subjectService.updateSubject(id, data);
+    await fetchSubjects();
+    return updated;
   };
 
   const deleteSubject = async (id: string) => {
@@ -64,6 +70,7 @@ export const useSubjects = (initialFilters?: Partial<SubjectFiltersState>) => {
     resetFilters,
     refresh: fetchSubjects,
     createSubject,
+    updateSubject,
     deleteSubject,
   };
 };

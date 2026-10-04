@@ -1,10 +1,12 @@
-import { StudentGradeRecord, GradeFiltersState } from '../types';
-import { initialGradeRows, calculateAverage } from '../mock-data';
+import { StudentGradeRecord, GradeFiltersState } from "../types";
+import { initialGradeRows, calculateAverage } from "../mocks/grade.mock";
 
 let memoryGradeRows = [...initialGradeRows];
 
 export const gradeService = {
-  async getGradeRecords(filters?: Partial<GradeFiltersState>): Promise<StudentGradeRecord[]> {
+  async getGradeRecords(
+    filters?: Partial<GradeFiltersState>,
+  ): Promise<StudentGradeRecord[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve([...memoryGradeRows]);
@@ -14,8 +16,8 @@ export const gradeService = {
 
   async updateGrade(
     id: string,
-    field: 'tx1' | 'tx2' | 'tx3' | 'gk' | 'ck',
-    value: number | null
+    field: "tx1" | "tx2" | "tx3" | "gk" | "ck",
+    value: number | null,
   ): Promise<StudentGradeRecord | null> {
     return new Promise((resolve) => {
       const idx = memoryGradeRows.findIndex((r) => r.id === id);
@@ -30,7 +32,7 @@ export const gradeService = {
           updatedItem.tx2,
           updatedItem.tx3,
           updatedItem.gk,
-          updatedItem.ck
+          updatedItem.ck,
         );
         updatedItem.avgScore = avg;
         updatedItem.rank = rank;

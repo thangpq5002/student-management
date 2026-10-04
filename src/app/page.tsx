@@ -1,6 +1,5 @@
-import React from 'react';
-import DashboardPage from './dashboard/page';
+import { redirect } from 'next/navigation';
 
-export default function RootPage() {
-  return <DashboardPage />;
+export default function Page() {
+  redirect('/dashboard');
 }

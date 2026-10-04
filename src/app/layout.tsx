@@ -1,6 +1,6 @@
 import React from 'react';
-import { AuthProvider } from '@/src/lib/auth/AuthContext';
-import { RouterProvider } from '@/src/lib/router';
+import '../index.css';
+import { AuthProvider } from '@/lib/auth/AuthContext';
 
 export default function RootLayout({
   children,
@@ -8,10 +8,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
-      <RouterProvider>
-        {children}
-      </RouterProvider>
-    </AuthProvider>
+    <html lang="vi">
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }

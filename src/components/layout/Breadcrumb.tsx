@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from '@/src/lib/router';
+import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 
 export interface BreadcrumbItem {

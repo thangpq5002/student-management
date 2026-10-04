@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Sidebar } from './Sidebar';
+'use client';
+
+import React, { useState } from 'react';import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 
 interface DashboardLayoutProps {
