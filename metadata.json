@@ -1,0 +1,6 @@
+{
+  "name": "EduManage - Student Management System",
+  "description": "Cổng thông tin quản lý đào tạo, hồ sơ học sinh, giáo viên, lớp học, môn học, điểm số và chuyên cần.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
