@@ -13,7 +13,6 @@ export class ApiError extends Error {
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
-
 export async function apiRequest<T>(
   path: string,
   options: ApiRequestOptions = {},

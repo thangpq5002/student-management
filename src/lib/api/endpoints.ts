@@ -1,12 +1,13 @@
 export const API_ENDPOINTS = {
   auth: {
-    login: "/auth/login",
-    logout: "/auth/logout",
+    login: "/api/auth/login",
+    register: "/api/auth/register",
   },
-  students: "/students",
-  teachers: "/teachers",
-  classes: "/classes",
-  subjects: "/subjects",
-  grades: "/grades",
-  attendance: "/attendance",
+
+  students: "/api/students",
+  teachers: "/api/teachers",
+  classes: "/api/classes",
+  subjects: "/api/subjects",
+  grades: "/api/grades",
+  attendance: "/api/attendance",
 } as const;

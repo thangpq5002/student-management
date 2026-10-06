@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useAuth, UserRole } from '@/lib/auth/AuthContext';
-import { useRouter } from 'next/navigation';
-import { defaultAccounts } from '../mocks/auth.mock';
+import React, { useState } from "react";
+import { useAuth, UserRole } from "@/lib/auth/AuthContext";
+import { useRouter } from "next/navigation";
+import { defaultAccounts } from "../mocks/auth.mock";
 import {
   Shield,
   GraduationCap,
@@ -15,15 +15,15 @@ import {
   CheckCircle,
   HelpCircle,
   ShieldCheck,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const router = useRouter();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>('admin');
-  const [username, setUsername] = useState(defaultAccounts.admin.email);
-  const [password, setPassword] = useState('••••••••••••');
+  const [selectedRole, setSelectedRole] = useState<UserRole>("admin");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,14 +36,27 @@ export const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setIsLoading(true);
 
     try {
-      await login(username, selectedRole);
+      await login(username, password, selectedRole, rememberMe);
+
       setIsSuccess(true);
+
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }, 700);
+    } catch (error) {
+      console.error("Login failed:", error);
+
+      setIsSuccess(false);
+
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Đăng nhập thất bại. Vui lòng kiểm tra username và password.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -72,11 +85,11 @@ export const LoginForm: React.FC = () => {
         <div className="mt-6 p-1 bg-surface-container-low rounded-xl flex items-center gap-1">
           <button
             type="button"
-            onClick={() => handleRoleSelect('admin')}
+            onClick={() => handleRoleSelect("admin")}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              selectedRole === 'admin'
-                ? 'bg-surface-container-lowest text-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
+              selectedRole === "admin"
+                ? "bg-surface-container-lowest text-primary shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             <Shield className="w-4 h-4" />
@@ -84,11 +97,11 @@ export const LoginForm: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => handleRoleSelect('teacher')}
+            onClick={() => handleRoleSelect("teacher")}
             className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              selectedRole === 'teacher'
-                ? 'bg-surface-container-lowest text-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
+              selectedRole === "teacher"
+                ? "bg-surface-container-lowest text-primary shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             <GraduationCap className="w-4 h-4" />
@@ -126,7 +139,11 @@ export const LoginForm: React.FC = () => {
               </label>
               <button
                 type="button"
-                onClick={() => alert('Vui lòng liên hệ IT Quản trị để cấp lại mật khẩu hoặc liên hệ support@edumanage.edu.vn')}
+                onClick={() =>
+                  alert(
+                    "Vui lòng liên hệ IT Quản trị để cấp lại mật khẩu hoặc liên hệ support@edumanage.edu.vn",
+                  )
+                }
                 className="text-xs text-secondary hover:text-primary transition-colors hover:underline"
               >
                 Quên mật khẩu?
@@ -135,7 +152,7 @@ export const LoginForm: React.FC = () => {
             <div className="relative flex items-center">
               <Lock className="w-4 h-4 absolute left-3.5 text-outline pointer-events-none" />
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -146,9 +163,13 @@ export const LoginForm: React.FC = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 p-1 text-outline hover:text-on-surface transition-colors cursor-pointer"
-                title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -174,8 +195,8 @@ export const LoginForm: React.FC = () => {
             disabled={isLoading || isSuccess}
             className={`mt-2 w-full h-11 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all select-none cursor-pointer ${
               isSuccess
-                ? 'bg-secondary text-on-secondary shadow-md'
-                : 'bg-primary-container text-on-primary hover:bg-primary shadow hover:shadow-md active:scale-[0.99]'
+                ? "bg-secondary text-on-secondary shadow-md"
+                : "bg-primary-container text-on-primary hover:bg-primary shadow hover:shadow-md active:scale-[0.99]"
             }`}
           >
             {isLoading ? (
@@ -203,7 +224,8 @@ export const LoginForm: React.FC = () => {
         <div className="mt-6 p-3 rounded-xl bg-surface-container-low flex items-start gap-2.5 border border-outline-variant/20">
           <ShieldCheck className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
           <p className="text-xs text-on-surface-variant leading-relaxed">
-            Hệ thống nội bộ bảo mật cao. Tất cả hoạt động truy cập và thao tác dữ liệu đều được lưu lại nhật ký kiểm toán (Audit Logs).
+            Hệ thống nội bộ bảo mật cao. Tất cả hoạt động truy cập và thao tác
+            dữ liệu đều được lưu lại nhật ký kiểm toán (Audit Logs).
           </p>
         </div>
 
