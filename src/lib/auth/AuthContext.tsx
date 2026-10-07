@@ -33,14 +33,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  login: (
-    username: string,
-    password: string,
-    role: UserRole,
-    rememberMe?: boolean,
-  ) => Promise<boolean>;
-
-  switchRole: (role: UserRole) => void;
+  login: (username: string, password: string, rememberMe?: boolean) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -49,6 +42,43 @@ const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 const SESSION_KEY = 'student_management_session';
+const AUTH_SESSION_INVALIDATED_EVENT = 'student-management:auth-session-invalidated';
+
+const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = window.atob(
+      normalizedPayload.padEnd(
+        Math.ceil(normalizedPayload.length / 4) * 4,
+        '=',
+      ),
+    );
+    const decodedBytes = Uint8Array.from(binary, (character) =>
+      character.charCodeAt(0),
+    );
+    const decoded = JSON.parse(
+      new TextDecoder().decode(decodedBytes),
+    ) as Record<string, unknown>;
+
+    return decoded;
+  } catch {
+    return null;
+  }
+};
+
+const decodeRoleFromJwt = (token: string): UserRole | null => {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return null;
+
+  const role = String(payload.role ?? '').toUpperCase();
+  if (role === 'ADMIN') return 'admin';
+  if (role === 'TEACHER') return 'teacher';
+
+  return null;
+};
 
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
@@ -57,72 +87,85 @@ export const AuthProvider: React.FC<{
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  /**
-   * RESTORE SESSION
-   */
   useEffect(() => {
-    try {
-      const sessionData =
-        localStorage.getItem(SESSION_KEY) ??
-        sessionStorage.getItem(SESSION_KEY);
+    const restoreSession = async () => {
+      try {
+        const sessionData =
+          localStorage.getItem(SESSION_KEY) ??
+          sessionStorage.getItem(SESSION_KEY);
 
-      if (!sessionData) {
-        setIsLoading(false);
-        return;
-      }
+        if (!sessionData) {
+          setIsLoading(false);
+          return;
+        }
 
-      const session: StoredSession = JSON.parse(sessionData);
+        const session: StoredSession = JSON.parse(sessionData);
+        const tokenRole = decodeRoleFromJwt(session.token);
 
-      if (
-        session.expiresAt &&
-        new Date(session.expiresAt).getTime() <= Date.now()
-      ) {
+        if (
+          !tokenRole ||
+          session.user.role !== tokenRole ||
+          (session.expiresAt &&
+            new Date(session.expiresAt).getTime() <= Date.now())
+        ) {
+          localStorage.removeItem(SESSION_KEY);
+          sessionStorage.removeItem(SESSION_KEY);
+          setIsLoading(false);
+          return;
+        }
+
+        setToken(session.token);
+        setUser(session.user);
+      } catch {
         localStorage.removeItem(SESSION_KEY);
         sessionStorage.removeItem(SESSION_KEY);
+      } finally {
         setIsLoading(false);
-        return;
       }
+    };
 
-      setUser(session.user);
-      setToken(session.token);
-    } catch (error) {
-      console.error('Không thể restore auth session:', error);
+    restoreSession();
 
+    const handleInvalidatedSession = () => {
+      setUser(null);
+      setToken(null);
       localStorage.removeItem(SESSION_KEY);
       sessionStorage.removeItem(SESSION_KEY);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    window.addEventListener(
+      AUTH_SESSION_INVALIDATED_EVENT,
+      handleInvalidatedSession,
+    );
+
+    return () => {
+      window.removeEventListener(
+        AUTH_SESSION_INVALIDATED_EVENT,
+        handleInvalidatedSession,
+      );
+    };
   }, []);
 
-  /**
-   * LOGIN
-   */
   const login = async (
     username: string,
     password: string,
-    _role: UserRole,
     rememberMe = true,
   ): Promise<boolean> => {
-    const session = await authService.login({
-      username,
-      password,
-      role: _role,
-      rememberMe,
-    });
+    const session = await authService.login({ username, password, rememberMe });
+    const tokenRole = decodeRoleFromJwt(session.token);
+
+    if (!tokenRole || session.user.role !== tokenRole) {
+      throw new Error('Đăng nhập trả về một vai trò không hợp lệ.');
+    }
 
     const loggedUser: User = {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      role: session.user.role,
+      ...session.user,
       avatarText: session.user.name
         .split(' ')
         .map((part) => part[0])
         .join('')
         .slice(0, 2)
         .toUpperCase(),
-      title: session.user.title,
     };
 
     const storedSession: StoredSession = {
@@ -134,14 +177,8 @@ export const AuthProvider: React.FC<{
     setUser(loggedUser);
     setToken(session.token);
 
-    const storage = rememberMe
-      ? localStorage
-      : sessionStorage;
-
-    storage.setItem(
-      SESSION_KEY,
-      JSON.stringify(storedSession),
-    );
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(SESSION_KEY, JSON.stringify(storedSession));
 
     if (rememberMe) {
       sessionStorage.removeItem(SESSION_KEY);
@@ -152,24 +189,6 @@ export const AuthProvider: React.FC<{
     return true;
   };
 
-  /**
-   * SWITCH ROLE
-   */
-  const switchRole = (role: UserRole) => {
-    if (!user || !token) return;
-
-    const updatedUser = { ...user, role };
-    const storedSession: StoredSession = {
-      token,
-      expiresAt: new Date(
-        Date.now() + 24 * 60 * 60 * 1000,
-      ).toISOString(),
-      user: updatedUser,
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(storedSession));
-  };
 
   /**
    * LOGOUT
@@ -191,7 +210,6 @@ export const AuthProvider: React.FC<{
         isAuthenticated: !!user && !!token,
         isLoading,
         login,
-        switchRole,
         logout,
       }}
     >

@@ -1,9 +1,8 @@
-import { UserRole } from "@/lib/auth/AuthContext";
+import type { UserRole } from "@/lib/auth/AuthContext";
 
 export interface LoginCredentials {
   username: string;
   password: string;
-  role: UserRole;
   rememberMe?: boolean;
 }
 

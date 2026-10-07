@@ -18,10 +18,8 @@ function mapRole(role: string): "admin" | "teacher" {
   switch (role.toUpperCase()) {
     case "ADMIN":
       return "admin";
-
     case "TEACHER":
       return "teacher";
-
     default:
       throw new Error(`Role không được hỗ trợ: ${role}`);
   }
@@ -92,7 +90,6 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
-    // JWT hiện tại là stateless.
-    // FE chỉ cần xóa token/session.
+    // JWT hiện tại là stateless; FE chỉ cần xóa token/session.
   },
 };

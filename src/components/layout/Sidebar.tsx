@@ -29,6 +29,7 @@ export interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   isSubItem?: boolean;
+  allowedRoles?: Array<'admin' | 'teacher'>;
 }
 
 interface NavSection {
@@ -54,11 +55,13 @@ export const navigationConfig: NavSection[] = [
         label: 'Học sinh',
         href: '/students',
         icon: GraduationCap,
+        allowedRoles: ['admin', 'teacher'],
       },
       {
         label: 'Giáo viên',
         href: '/teachers',
         icon: Users,
+        allowedRoles: ['admin'],
       },
       {
         label: 'Lớp học',
@@ -97,13 +100,20 @@ export const navigationConfig: NavSection[] = [
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
 
   const isRouteActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
     if (href === '/attendance') return pathname === '/attendance';
     return pathname.startsWith(href);
   };
+
+  const visibleNavigation = navigationConfig.map((section) => ({
+    ...section,
+    items: section.items.filter(
+      (item) => !item.allowedRoles || !role || item.allowedRoles.includes(role),
+    ),
+  }));
 
   const sidebarContent = (
     <div className="flex flex-col h-full justify-between select-none">
@@ -136,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Navigation Sections */}
         <div className="p-3 py-4 flex flex-col gap-4">
-          {navigationConfig.map((section, idx) => (
+          {visibleNavigation.map((section, idx) => (
             <div key={idx} className="flex flex-col gap-1">
               <div className="px-3 py-1">
                 <span className="text-[11px] font-semibold tracking-wider text-outline uppercase">

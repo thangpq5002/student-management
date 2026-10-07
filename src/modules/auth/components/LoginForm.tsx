@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth, UserRole } from "@/lib/auth/AuthContext";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { useRouter } from "next/navigation";
-import { defaultAccounts } from "../mocks/auth.mock";
 import {
-  Shield,
   GraduationCap,
   Mail,
   Lock,
@@ -21,7 +19,6 @@ export const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const router = useRouter();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>("admin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,18 +26,13 @@ export const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role);
-    setUsername(defaultAccounts[role].email);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setIsLoading(true);
 
     try {
-      await login(username, password, selectedRole, rememberMe);
+      await login(username, password, rememberMe);
 
       setIsSuccess(true);
 
@@ -81,35 +73,6 @@ export const LoginForm: React.FC = () => {
           </p>
         </div>
 
-        {/* Role Selector Tabs */}
-        <div className="mt-6 p-1 bg-surface-container-low rounded-xl flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => handleRoleSelect("admin")}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              selectedRole === "admin"
-                ? "bg-surface-container-lowest text-primary shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Quản trị viên</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRoleSelect("teacher")}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              selectedRole === "teacher"
-                ? "bg-surface-container-lowest text-primary shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface"
-            }`}
-          >
-            <GraduationCap className="w-4 h-4" />
-            <span>Giáo viên</span>
-          </button>
-        </div>
-
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           {/* Username / Email */}
           <div className="flex flex-col gap-1.5">

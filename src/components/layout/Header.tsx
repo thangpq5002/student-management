@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';import { useAuth, UserRole } from '@/lib/auth/AuthContext';
+import React, { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
   Search,
   Bell,
   ChevronDown,
   Menu,
-  Shield,
-  GraduationCap,
   LogOut,
   User as UserIcon,
 } from 'lucide-react';
@@ -18,7 +17,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const { user, role, switchRole, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -33,11 +32,6 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const handleRoleChange = (newRole: UserRole) => {
-    switchRole(newRole);
-    setIsDropdownOpen(false);
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,45 +101,12 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <ChevronDown className="w-4 h-4 text-outline" />
           </button>
 
-          {/* Role Switcher Menu */}
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-surface-container-lowest shadow-2xl border border-outline-variant/30 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-3 py-2 border-b border-outline-variant/20 mb-1">
                 <p className="text-xs font-semibold text-on-surface">{user?.name}</p>
                 <p className="text-[11px] text-on-surface-variant truncate">{user?.email}</p>
               </div>
-
-              <div className="px-3 py-1.5">
-                <p className="text-[10px] font-bold text-outline uppercase tracking-wider">
-                  Chuyển vai trò thử nghiệm
-                </p>
-              </div>
-
-              <button
-                onClick={() => handleRoleChange('admin')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
-                  role === 'admin'
-                    ? 'bg-primary-container text-on-primary font-semibold'
-                    : 'text-on-surface hover:bg-surface-container'
-                }`}
-              >
-                <Shield className="w-4 h-4" />
-                <span>Quản trị viên (Admin)</span>
-              </button>
-
-              <button
-                onClick={() => handleRoleChange('teacher')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
-                  role === 'teacher'
-                    ? 'bg-primary-container text-on-primary font-semibold'
-                    : 'text-on-surface hover:bg-surface-container'
-                }`}
-              >
-                <GraduationCap className="w-4 h-4" />
-                <span>Giáo viên (Teacher)</span>
-              </button>
-
-              <div className="my-1 border-t border-outline-variant/20" />
 
               <button
                 onClick={() => {
